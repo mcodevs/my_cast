@@ -8,7 +8,7 @@ plugins {
 android {
     namespace = "uz.mcodevs.my_cast"
     compileSdk = flutter.compileSdkVersion
-    ndkVersion = flutter.ndkVersion
+    ndkVersion = "27.0.12077973"
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
@@ -24,7 +24,7 @@ android {
         applicationId = "uz.mcodevs.my_cast"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
-        minSdk = flutter.minSdkVersion
+        minSdk = Math.max(flutter.minSdkVersion, 21) // Chromecast requires API 21+
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
@@ -41,4 +41,24 @@ android {
 
 flutter {
     source = "../.."
+}
+
+// Rename generated APKs to: my_cast_{version_name}_{version_code}.apk
+androidComponents {
+    onVariants(selector().all()) { variant ->
+        variant.outputs.forEach { output ->
+            if (output is com.android.build.api.variant.ApkVariantOutput) {
+                val vName = variant.versionName?.get() ?: "0.0.0"
+                val vCode = variant.versionCode?.get()?.toString() ?: "0"
+                output.outputFileName.set("my_cast_${'$'}vName_${'$'}vCode.apk")
+            }
+        }
+    }
+}
+
+dependencies {
+    // Google Cast SDK
+    implementation("com.google.android.gms:play-services-cast-framework:21.4.0")
+    implementation("androidx.mediarouter:mediarouter:1.7.0")
+    implementation("androidx.appcompat:appcompat:1.6.1")
 }
